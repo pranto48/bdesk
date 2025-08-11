@@ -18,6 +18,13 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // Custom variants for the Windows-like UI
+        taskbar:
+          "bg-transparent text-foreground hover:bg-foreground/5 rounded-md",
+        start:
+          "bg-[var(--gradient-brand)] text-[hsl(var(--brand-foreground))] elevated hover:brightness-110",
+        glass:
+          "glass elevated text-foreground hover:bg-foreground/10",
       },
       size: {
         default: "h-10 px-4 py-2",
