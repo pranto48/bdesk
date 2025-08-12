@@ -1,12 +1,19 @@
-import { Folder, Download, Shield } from "lucide-react";
+import { Folder, Download, Shield, LogIn, LogOut, Magnet, Files } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface StartMenuProps {
   open: boolean;
   onOpenExplorer: () => void;
+  onOpenAuth: () => void;
+  onOpenMyTorrents: () => void;
+  onOpenTorrentCreator: () => void;
+  onOpenAdmin: () => void;
+  isAdmin?: boolean;
+  isSignedIn?: boolean;
+  onSignOut?: () => void;
 }
 
-export const StartMenu = ({ open, onOpenExplorer }: StartMenuProps) => {
+export const StartMenu = ({ open, onOpenExplorer, onOpenAuth, onOpenMyTorrents, onOpenTorrentCreator, onOpenAdmin, isAdmin = false, isSignedIn = false, onSignOut }: StartMenuProps) => {
   if (!open) return null;
   return (
     <div
@@ -20,14 +27,29 @@ export const StartMenu = ({ open, onOpenExplorer }: StartMenuProps) => {
           <Folder />
           File Explorer
         </Button>
-        <Button variant="glass" className="justify-start h-12">
-          <Download />
-          Downloads
+        <Button variant="glass" className="justify-start h-12" onClick={onOpenMyTorrents} disabled={!isSignedIn}>
+          <Files />
+          My Torrents
         </Button>
-        <Button variant="glass" className="justify-start col-span-2 h-12" disabled>
+        <Button variant="glass" className="justify-start h-12" onClick={onOpenTorrentCreator} disabled={!isSignedIn}>
+          <Magnet />
+          Create Torrent
+        </Button>
+        <Button variant="glass" className="justify-start h-12" onClick={onOpenAdmin} disabled={!isAdmin}>
           <Shield />
-          Admin Panel (coming soon)
+          Admin Panel
         </Button>
+        {!isSignedIn ? (
+          <Button variant="glass" className="justify-start col-span-2 h-12" onClick={onOpenAuth}>
+            <LogIn />
+            Sign in / Register
+          </Button>
+        ) : (
+          <Button variant="glass" className="justify-start col-span-2 h-12" onClick={onSignOut}>
+            <LogOut />
+            Sign out
+          </Button>
+        )}
       </div>
     </div>
   );
