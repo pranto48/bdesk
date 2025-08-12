@@ -1,4 +1,5 @@
 import { Folder, Download, Shield, LogIn, LogOut, Magnet, Files } from "lucide-react";
+import { Magnet as MagnetIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface StartMenuProps {
