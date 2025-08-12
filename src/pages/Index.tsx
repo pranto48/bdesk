@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import wallpaper from "@/assets/wallpaper-hero.jpg";
 import DesktopIcon from "@/components/desktop/DesktopIcon";
 import { Taskbar } from "@/components/desktop/Taskbar";
 import { StartMenu } from "@/components/desktop/StartMenu";
 import { FileExplorer } from "@/components/desktop/FileExplorer";
-import { Folder, Download } from "lucide-react";
+import { Folder, Download, Recycle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { AuthWindow } from "@/components/auth/AuthWindow";
 import { MyTorrents } from "@/components/torrents/MyTorrents";
 import { TorrentCreator } from "@/components/torrents/TorrentCreator";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 import { supabase } from "@/integrations/supabase/client";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, ContextMenuSeparator, ContextMenuLabel } from "@/components/ui/context-menu";
+import { type LucideIcon } from "lucide-react";
 
 const Index = () => {
   const [startOpen, setStartOpen] = useState(false);
@@ -21,6 +23,45 @@ const Index = () => {
   const [adminOpen, setAdminOpen] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  type DesktopItem = { id: string; label: string; Icon: LucideIcon; x: number; y: number; onOpen?: () => void; deleted?: boolean };
+  const [items, setItems] = useState<DesktopItem[]>([
+    { id: "explorer", label: "File Explorer", Icon: Folder, x: 24, y: 24, onOpen: () => openExplorer() },
+    { id: "downloads", label: "Downloads", Icon: Download, x: 24, y: 120, onOpen: () => toast({ title: "Open Downloads" }) },
+    { id: "recycle", label: "Recycle Bin", Icon: Recycle, x: 24, y: 216, onOpen: () => toast({ title: "Recycle Bin is empty" }) },
+  ]);
+  const refs = useRef<Record<string, HTMLDivElement | null>>({});
+  const draggingRef = useRef<{ id: string | null; offsetX: number; offsetY: number }>({ id: null, offsetX: 0, offsetY: 0 });
+  const onPointerMove = (e: PointerEvent) => {
+    const { id, offsetX, offsetY } = draggingRef.current;
+    if (!id) return;
+    setItems((prev) => prev.map((it) => it.id === id ? { ...it, x: e.clientX - offsetX, y: e.clientY - offsetY } : it));
+  };
+  const onPointerUp = () => {
+    const { id } = draggingRef.current;
+    window.removeEventListener('pointermove', onPointerMove);
+    if (!id || id === 'recycle') { draggingRef.current.id = null; return; }
+    const recycleEl = refs.current['recycle'];
+    const draggedEl = refs.current[id];
+    draggingRef.current.id = null;
+    if (!recycleEl || !draggedEl) return;
+    const r1 = draggedEl.getBoundingClientRect();
+    const r2 = recycleEl.getBoundingClientRect();
+    const intersects = !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+    if (intersects) {
+      setItems((prev) => prev.map((it) => it.id === id ? { ...it, deleted: true } : it));
+      const removed = items.find((it) => it.id === id)?.label ?? 'Item';
+      toast({ title: `${removed} moved to Recycle Bin` });
+    }
+  };
+  const onPointerDown = (id: string) => (e: React.PointerEvent) => {
+    const el = refs.current[id];
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    draggingRef.current = { id, offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top };
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp, { once: true });
+  };
 
   useEffect(() => {
     // Auth state management
@@ -71,10 +112,32 @@ const Index = () => {
       </header>
 
       <main className="relative min-h-screen pb-16">
-        <div className="p-6 grid grid-cols-3 sm:grid-cols-6 gap-4 max-w-5xl">
-          <DesktopIcon Icon={Folder} label="File Explorer" onOpen={openExplorer} />
-          <DesktopIcon Icon={Download} label="Downloads" onOpen={() => toast({ title: "Open Downloads" })} />
-        </div>
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <div className="relative w-full h-full">
+              {items.filter((i) => !i.deleted).map((it) => (
+                <div
+                  key={it.id}
+                  ref={(el) => (refs.current[it.id] = el)}
+                  className="absolute"
+                  style={{ top: it.y, left: it.x }}
+                  onPointerDown={onPointerDown(it.id)}
+                  onDoubleClick={it.onOpen}
+                  role="button"
+                  aria-label={`${it.label} icon`}
+                >
+                  <DesktopIcon Icon={it.Icon} label={it.label} onOpen={it.onOpen} />
+                </div>
+              ))}
+            </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuLabel>Desktop</ContextMenuLabel>
+            <ContextMenuSeparator />
+            <ContextMenuItem onSelect={() => window.location.reload()}>Refresh</ContextMenuItem>
+            <ContextMenuItem onSelect={() => toast({ title: "New Folder coming soon" })}>New Folder</ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
 
         {explorerOpen && (
           <FileExplorer onClose={() => setExplorerOpen(false)} />
