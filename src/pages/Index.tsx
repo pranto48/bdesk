@@ -10,6 +10,7 @@ import { AuthWindow } from "@/components/auth/AuthWindow";
 import { MyTorrents } from "@/components/torrents/MyTorrents";
 import { TorrentCreator } from "@/components/torrents/TorrentCreator";
 import { AdminPanel } from "@/components/admin/AdminPanel";
+import { UserProfile } from "@/components/profile/UserProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, ContextMenuSeparator, ContextMenuLabel } from "@/components/ui/context-menu";
 import { type LucideIcon } from "lucide-react";
@@ -21,6 +22,7 @@ const Index = () => {
   const [myTorrentsOpen, setMyTorrentsOpen] = useState(false);
   const [creatorOpen, setCreatorOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -146,6 +148,7 @@ const Index = () => {
         {myTorrentsOpen && <MyTorrents onClose={() => setMyTorrentsOpen(false)} />}
         {creatorOpen && <TorrentCreator onClose={() => setCreatorOpen(false)} />}
         {adminOpen && <AdminPanel onClose={() => setAdminOpen(false)} isAdmin={isAdmin} />}
+        {profileOpen && <UserProfile onClose={() => setProfileOpen(false)} />}
 
         <StartMenu
           open={startOpen}
@@ -154,6 +157,7 @@ const Index = () => {
           onOpenMyTorrents={() => { setMyTorrentsOpen(true); setStartOpen(false); }}
           onOpenTorrentCreator={() => { setCreatorOpen(true); setStartOpen(false); }}
           onOpenAdmin={() => { setAdminOpen(true); setStartOpen(false); }}
+          onOpenProfile={() => { setProfileOpen(true); setStartOpen(false); }}
           isAdmin={isAdmin}
           isSignedIn={isSignedIn}
           onSignOut={onSignOut}

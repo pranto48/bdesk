@@ -14,9 +14,85 @@ export type Database = {
   }
   public: {
     Tables: {
+      cloud_connections: {
+        Row: {
+          access_token: string | null
+          account_email: string | null
+          account_name: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          provider: string
+          refresh_token: string | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          account_email?: string | null
+          account_name?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          provider: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          account_email?: string | null
+          account_name?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          provider?: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      drives: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          drive_type: string
+          id: string
+          is_public: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          drive_type?: string
+          id?: string
+          is_public?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          drive_type?: string
+          id?: string
+          is_public?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       files: {
         Row: {
           created_at: string
+          drive_id: string | null
           folder_id: string
           id: string
           info_hash: string | null
@@ -29,6 +105,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          drive_id?: string | null
           folder_id: string
           id?: string
           info_hash?: string | null
@@ -41,6 +118,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          drive_id?: string | null
           folder_id?: string
           id?: string
           info_hash?: string | null
@@ -52,6 +130,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "files_drive_id_fkey"
+            columns: ["drive_id"]
+            isOneToOne: false
+            referencedRelation: "drives"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "files_folder_id_fkey"
             columns: ["folder_id"]

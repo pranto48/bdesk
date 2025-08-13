@@ -5,8 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { DriveManager } from "./DriveManager";
+import { UserFileManager } from "./UserFileManager";
 
 interface AdminPanelProps {
   onClose: () => void;
@@ -71,48 +74,79 @@ export const AdminPanel = ({ onClose, isAdmin }: AdminPanelProps) => {
 
   return (
     <WindowFrame title="Admin Panel" onClose={onClose}>
-      <main className="h-full overflow-auto p-4 space-y-6">
-        <section>
-          <h1 className="text-lg font-semibold">Manage Folders</h1>
-          {!isAdmin && (
-            <p className="text-sm text-foreground/70 mt-2">You must be an admin to use this panel.</p>
-          )}
-          <div className="grid sm:grid-cols-2 gap-4 mt-4">
-            <div className="space-y-2">
-              <Label htmlFor="folder-name">Folder name</Label>
-              <Input id="folder-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="New folder" />
-            </div>
-            <div className="space-y-2">
-              <Label>Parent</Label>
-              <Select value={parentId} onValueChange={setParentId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select parent" />
-                </SelectTrigger>
-                <SelectContent>
-                  {parentOptions.map((f) => (
-                    <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="col-span-full flex items-center gap-2">
-              <Switch id="is-system" checked={isSystem} onCheckedChange={setIsSystem} />
-              <Label htmlFor="is-system">Mark as system folder</Label>
-            </div>
-            <div className="col-span-full">
-              <Button onClick={createFolder} disabled={loading || !isAdmin}>Create folder</Button>
-            </div>
+      <main className="h-full overflow-auto p-4">
+        <h1 className="text-lg font-semibold mb-4">Admin Panel</h1>
+        {!isAdmin && (
+          <div className="text-center py-8 text-muted-foreground">
+            You must be an admin to use this panel.
           </div>
-        </section>
+        )}
+        
+        {isAdmin && (
+          <Tabs defaultValue="folders" className="space-y-4">
+            <TabsList className="glass">
+              <TabsTrigger value="folders">Folders</TabsTrigger>
+              <TabsTrigger value="drives">Drives</TabsTrigger>
+              <TabsTrigger value="users">Users & Files</TabsTrigger>
+            </TabsList>
 
-        <section>
-          <h2 className="text-base font-medium">Existing system folders</h2>
-          <ul className="mt-2 grid sm:grid-cols-2 gap-2 text-sm">
-            {folders.filter(f => f.is_system).map(f => (
-              <li key={f.id} className="glass rounded-md px-3 py-2 border">{f.name}</li>
-            ))}
-          </ul>
-        </section>
+            <TabsContent value="folders" className="space-y-6">
+              <section>
+                <h2 className="text-lg font-semibold mb-4">Manage Folders</h2>
+                <div className="glass rounded-lg p-4 space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="folder-name">Folder name</Label>
+                      <Input id="folder-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="New folder" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Parent</Label>
+                      <Select value={parentId} onValueChange={setParentId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select parent" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {parentOptions.map((f) => (
+                            <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="col-span-full flex items-center gap-2">
+                      <Switch id="is-system" checked={isSystem} onCheckedChange={setIsSystem} />
+                      <Label htmlFor="is-system">Mark as system folder</Label>
+                    </div>
+                    <div className="col-span-full">
+                      <Button onClick={createFolder} disabled={loading}>Create folder</Button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section>
+                <h3 className="text-base font-medium mb-3">Existing system folders</h3>
+                <div className="grid sm:grid-cols-2 gap-2">
+                  {folders.filter(f => f.is_system).map(f => (
+                    <div key={f.id} className="glass rounded-md px-3 py-2 border">{f.name}</div>
+                  ))}
+                  {folders.filter(f => f.is_system).length === 0 && (
+                    <div className="glass rounded-lg p-4 text-center text-muted-foreground col-span-2">
+                      No system folders created yet
+                    </div>
+                  )}
+                </div>
+              </section>
+            </TabsContent>
+
+            <TabsContent value="drives">
+              <DriveManager isAdmin={isAdmin} />
+            </TabsContent>
+
+            <TabsContent value="users">
+              <UserFileManager isAdmin={isAdmin} />
+            </TabsContent>
+          </Tabs>
+        )}
       </main>
     </WindowFrame>
   );

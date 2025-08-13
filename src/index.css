@@ -116,23 +116,37 @@ All colors MUST be HSL.
     --glass-border: var(--border) / 0.4;
     --shadow-elevated: 0 10px 30px -10px hsl(var(--primary) / 0.3);
 
-    /* Gradients */
-    --gradient-brand: linear-gradient(135deg, hsl(217 92% 60%), hsl(221 83% 53%));
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, hsl(217 92% 60%), hsl(221 83% 53%));
+  --gradient-glass: linear-gradient(135deg, hsl(var(--background) / 0.7), hsl(var(--background) / 0.4));
   }
   .dark {
     --glass: var(--background) / 0.5;
     --glass-border: var(--border) / 0.3;
     --shadow-elevated: 0 12px 32px -12px hsl(var(--primary) / 0.45);
     --gradient-brand: linear-gradient(135deg, hsl(221 83% 53%), hsl(217 92% 60%));
+    --gradient-glass: linear-gradient(135deg, hsl(var(--background) / 0.6), hsl(var(--background) / 0.3));
   }
 }
 
 /* Utilities derived from tokens */
 @layer utilities {
   .glass {
-    background-color: hsl(var(--glass));
+    background: var(--gradient-glass);
     border: 1px solid hsl(var(--glass-border));
-    backdrop-filter: blur(16px);
+    backdrop-filter: blur(20px) saturate(150%);
+    position: relative;
+  }
+  .glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(var(--border) / 0.6), hsl(var(--border) / 0.2));
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: subtract;
+    pointer-events: none;
   }
   .elevated { box-shadow: var(--shadow-elevated); }
 
