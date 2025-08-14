@@ -11,6 +11,7 @@ import { MyTorrents } from "@/components/torrents/MyTorrents";
 import { TorrentCreator } from "@/components/torrents/TorrentCreator";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 import { UserProfile } from "@/components/profile/UserProfile";
+import { ControlPanel } from "@/components/admin/ControlPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, ContextMenuSeparator, ContextMenuLabel } from "@/components/ui/context-menu";
 import { type LucideIcon } from "lucide-react";
@@ -23,6 +24,7 @@ const Index = () => {
   const [creatorOpen, setCreatorOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [controlPanelOpen, setControlPanelOpen] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -142,13 +144,14 @@ const Index = () => {
         </ContextMenu>
 
         {explorerOpen && (
-          <FileExplorer onClose={() => setExplorerOpen(false)} />
+          <FileExplorer onClose={() => setExplorerOpen(false)} isAdmin={isAdmin} />
         )}
         {authOpen && <AuthWindow onClose={() => setAuthOpen(false)} />}
         {myTorrentsOpen && <MyTorrents onClose={() => setMyTorrentsOpen(false)} />}
         {creatorOpen && <TorrentCreator onClose={() => setCreatorOpen(false)} />}
         {adminOpen && <AdminPanel onClose={() => setAdminOpen(false)} isAdmin={isAdmin} />}
         {profileOpen && <UserProfile onClose={() => setProfileOpen(false)} />}
+        {controlPanelOpen && <ControlPanel onClose={() => setControlPanelOpen(false)} />}
 
         <StartMenu
           open={startOpen}
@@ -158,6 +161,7 @@ const Index = () => {
           onOpenTorrentCreator={() => { setCreatorOpen(true); setStartOpen(false); }}
           onOpenAdmin={() => { setAdminOpen(true); setStartOpen(false); }}
           onOpenProfile={() => { setProfileOpen(true); setStartOpen(false); }}
+          onOpenControlPanel={() => { setControlPanelOpen(true); setStartOpen(false); }}
           isAdmin={isAdmin}
           isSignedIn={isSignedIn}
           onSignOut={onSignOut}

@@ -1,15 +1,38 @@
-import { useMemo } from "react";
-import { HardDrive, Folder, FileText, Magnet, Download } from "lucide-react";
+import { useMemo, useState } from "react";
+import { HardDrive, Folder, FileText, Magnet, Download, FolderPlus, Edit, Trash2, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WindowFrame } from "./WindowFrame";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 interface FileExplorerProps {
   onClose: () => void;
+  isAdmin?: boolean;
 }
 
 type Item = { id: string; name: string; type: "folder" | "file"; magnet?: string };
 
-export const FileExplorer = ({ onClose }: FileExplorerProps) => {
+export const FileExplorer = ({ onClose, isAdmin = false }: FileExplorerProps) => {
+  const [showCreateFolder, setShowCreateFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const { toast } = useToast();
   const drives = [
     { id: "office", name: "Office", icon: HardDrive },
     { id: "shared", name: "Shared", icon: HardDrive },
@@ -24,6 +47,35 @@ export const FileExplorer = ({ onClose }: FileExplorerProps) => {
       { id: "handbook", name: "Employee-Handbook.docx", type: "file", magnet: "magnet:?xt=urn:btih:dummyhash456&dn=Employee-Handbook.docx" },
     ]
   ), []);
+
+  const handleCreateFolder = () => {
+    if (newFolderName.trim()) {
+      // TODO: Implement folder creation logic with Supabase
+      toast({
+        title: "Folder created",
+        description: `Created folder: ${newFolderName}`,
+      });
+      setNewFolderName("");
+      setShowCreateFolder(false);
+    }
+  };
+
+  const handleRenameFolder = (folderId: string) => {
+    // TODO: Implement folder rename logic
+    toast({
+      title: "Rename folder",
+      description: "Rename functionality will be implemented",
+    });
+  };
+
+  const handleDeleteFolder = (folderId: string) => {
+    // TODO: Implement folder deletion logic
+    toast({
+      title: "Delete folder",
+      description: "Delete functionality will be implemented",
+      variant: "destructive",
+    });
+  };
 
   return (
     <WindowFrame title="File Explorer" onClose={onClose}>
@@ -52,30 +104,98 @@ export const FileExplorer = ({ onClose }: FileExplorerProps) => {
           <div className="mb-3 text-sm text-foreground/70">This PC / Office</div>
 
           <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {items.map((it) => (
-              <article key={it.id} className="flex flex-col items-center justify-center h-28 rounded-md hover:bg-foreground/5 p-2">
-                {it.type === "folder" ? (
-                  <Folder className="h-8 w-8 text-foreground mb-2" />
-                ) : (
-                  <FileText className="h-8 w-8 text-foreground mb-2" />
-                )}
-                <div className="text-xs text-center line-clamp-2">{it.name}</div>
-                {it.magnet && (
-                  <a
-                    className="mt-1 inline-flex items-center gap-1 text-xs story-link"
-                    href={it.magnet}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={`Download ${it.name} via magnet link`}
-                  >
-                    <Magnet className="h-3 w-3" /> Get Magnet
-                  </a>
-                )}
-              </article>
-            ))}
+            {items.map((it) => {
+              const ItemContent = (
+                <article className="flex flex-col items-center justify-center h-28 rounded-md hover:bg-foreground/5 p-2">
+                  {it.type === "folder" ? (
+                    <Folder className="h-8 w-8 text-foreground mb-2" />
+                  ) : (
+                    <FileText className="h-8 w-8 text-foreground mb-2" />
+                  )}
+                  <div className="text-xs text-center line-clamp-2">{it.name}</div>
+                  {it.magnet && (
+                    <a
+                      className="mt-1 inline-flex items-center gap-1 text-xs story-link"
+                      href={it.magnet}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`Download ${it.name} via magnet link`}
+                    >
+                      <Magnet className="h-3 w-3" /> Get Magnet
+                    </a>
+                  )}
+                </article>
+              );
+
+              if (it.type === "folder" && isAdmin) {
+                return (
+                  <ContextMenu key={it.id}>
+                    <ContextMenuTrigger>
+                      {ItemContent}
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                      <ContextMenuItem onClick={() => setShowCreateFolder(true)}>
+                        <FolderPlus className="h-4 w-4 mr-2" />
+                        Create Subfolder
+                      </ContextMenuItem>
+                      <ContextMenuItem onClick={() => handleRenameFolder(it.id)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Rename Folder
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem 
+                        onClick={() => handleDeleteFolder(it.id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Folder
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem>
+                        <Settings className="h-4 w-4 mr-2" />
+                        Properties
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
+                );
+              }
+
+              return <div key={it.id}>{ItemContent}</div>;
+            })}
           </section>
         </main>
       </div>
+
+      <Dialog open={showCreateFolder} onOpenChange={setShowCreateFolder}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Folder</DialogTitle>
+            <DialogDescription>
+              Enter a name for the new folder
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="folder-name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="folder-name"
+                value={newFolderName}
+                onChange={(e) => setNewFolderName(e.target.value)}
+                className="col-span-3"
+                placeholder="Enter folder name"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCreateFolder(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateFolder}>Create Folder</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </WindowFrame>
   );
 };

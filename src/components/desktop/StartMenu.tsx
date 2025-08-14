@@ -1,4 +1,4 @@
-import { Folder, Download, Shield, LogIn, LogOut, Magnet, Files, User } from "lucide-react";
+import { Folder, Download, Shield, LogIn, LogOut, Magnet, Files, User, Settings } from "lucide-react";
 import { Magnet as MagnetIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -10,16 +10,17 @@ interface StartMenuProps {
   onOpenTorrentCreator: () => void;
   onOpenAdmin: () => void;
   onOpenProfile: () => void;
+  onOpenControlPanel: () => void;
   isAdmin?: boolean;
   isSignedIn?: boolean;
   onSignOut?: () => void;
 }
 
-export const StartMenu = ({ open, onOpenExplorer, onOpenAuth, onOpenMyTorrents, onOpenTorrentCreator, onOpenAdmin, onOpenProfile, isAdmin = false, isSignedIn = false, onSignOut }: StartMenuProps) => {
+export const StartMenu = ({ open, onOpenExplorer, onOpenAuth, onOpenMyTorrents, onOpenTorrentCreator, onOpenAdmin, onOpenProfile, onOpenControlPanel, isAdmin = false, isSignedIn = false, onSignOut }: StartMenuProps) => {
   if (!open) return null;
   return (
     <div
-      className="absolute bottom-16 left-2 w-[24rem] glass elevated rounded-xl border p-3 animate-enter z-40"
+      className="absolute bottom-16 left-2 w-80 max-w-[calc(100vw-1rem)] glass elevated rounded-xl border p-3 animate-enter z-40"
       role="dialog"
       aria-label="Start menu"
     >
@@ -41,9 +42,9 @@ export const StartMenu = ({ open, onOpenExplorer, onOpenAuth, onOpenMyTorrents, 
           <User />
           Profile
         </Button>
-        <Button variant="glass" className="justify-start h-12" onClick={onOpenAdmin} disabled={!isAdmin}>
-          <Shield />
-          Admin Panel
+        <Button variant="glass" className="justify-start h-12" onClick={onOpenControlPanel} disabled={!isAdmin}>
+          <Settings />
+          Control Panel
         </Button>
         {!isSignedIn ? (
           <Button variant="glass" className="justify-start h-12" onClick={onOpenAuth}>
