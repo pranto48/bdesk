@@ -56,7 +56,14 @@ export const WindowFrame = ({ title, onClose, children }: PropsWithChildren<Wind
 
   const containerStyle = isMaximized
     ? undefined
-    : { top: pos.top, left: pos.left, width: "min(960px,92vw)", height: "min(600px,70vh)" } as React.CSSProperties;
+    : { 
+        top: pos.top, 
+        left: pos.left, 
+        width: "min(960px, calc(100vw - 2rem))", 
+        height: "min(600px, calc(100vh - 8rem))",
+        maxWidth: "92vw",
+        maxHeight: "85vh"
+      } as React.CSSProperties;
 
   return (
     <section
