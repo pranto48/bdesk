@@ -105,7 +105,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen w-full relative" style={{
+    <div className="h-screen w-full relative overflow-hidden" style={{
       backgroundImage: `url(${wallpaper})`,
       backgroundSize: "cover",
       backgroundPosition: "center",
@@ -115,7 +115,7 @@ const Index = () => {
         <p>Browse drives and categories, share files, and download via torrent magnet links.</p>
       </header>
 
-      <main className="relative min-h-screen pb-16">
+      <main className="relative h-full">
         <ContextMenu>
           <ContextMenuTrigger asChild>
             <div className="relative w-full h-full">

@@ -20,7 +20,7 @@ export const StartMenu = ({ open, onOpenExplorer, onOpenAuth, onOpenMyTorrents, 
   if (!open) return null;
   return (
     <div
-      className="absolute bottom-16 left-2 w-80 max-w-[calc(100vw-1rem)] glass elevated rounded-xl border p-3 animate-enter z-40"
+      className="fixed bottom-16 left-2 w-80 max-w-[calc(100vw-1rem)] glass elevated rounded-xl border p-3 animate-enter z-40"
       role="dialog"
       aria-label="Start menu"
     >
