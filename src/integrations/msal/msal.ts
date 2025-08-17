@@ -21,5 +21,7 @@ export const loginRequest = {
   scopes: ["User.Read", "Files.Read", "offline_access"],
 };
 
-// Initialize MSAL
-await msalInstance.initialize();
+// Initialize MSAL - call this function before using MSAL
+export const initializeMsal = async () => {
+  await msalInstance.initialize();
+};

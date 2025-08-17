@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Cloud, File, Folder, LogOut, Loader2 } from "lucide-react";
-import { msalInstance, loginRequest } from "@/integrations/msal/msal";
+import { msalInstance, loginRequest, initializeMsal } from "@/integrations/msal/msal";
 import { Client } from "@microsoft/microsoft-graph-client";
 import { toast } from "@/hooks/use-toast";
 
@@ -24,7 +24,9 @@ export const OneDriveConnect = () => {
   const [userName, setUserName] = useState<string>("");
 
   useEffect(() => {
-    checkAuthStatus();
+    initializeMsal().then(() => {
+      checkAuthStatus();
+    });
   }, []);
 
   const checkAuthStatus = async () => {
