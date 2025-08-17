@@ -51,8 +51,8 @@ export const WindowFrame = ({ title, onClose, children }: PropsWithChildren<Wind
   };
 
   const containerClass = isMaximized
-    ? "fixed left-2 right-2 top-2 bottom-16 glass elevated rounded-lg border overflow-hidden animate-enter z-[70]"
-    : "absolute glass elevated rounded-lg border overflow-hidden animate-enter z-[60]";
+    ? "fixed left-2 right-2 top-2 bottom-16 glass elevated rounded-lg border overflow-hidden animate-enter z-[700]"
+    : "absolute glass elevated rounded-lg border overflow-hidden animate-enter z-[600]";
 
   const containerStyle = isMaximized
     ? undefined

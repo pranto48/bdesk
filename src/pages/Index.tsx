@@ -12,6 +12,7 @@ import { TorrentCreator } from "@/components/torrents/TorrentCreator";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 import { UserProfile } from "@/components/profile/UserProfile";
 import { ControlPanel } from "@/components/admin/ControlPanel";
+import { OneDriveWindow } from "@/components/onedrive/OneDriveWindow";
 import { supabase } from "@/integrations/supabase/client";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, ContextMenuSeparator, ContextMenuLabel } from "@/components/ui/context-menu";
 import { type LucideIcon } from "lucide-react";
@@ -25,6 +26,7 @@ const Index = () => {
   const [adminOpen, setAdminOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [controlPanelOpen, setControlPanelOpen] = useState(false);
+  const [oneDriveOpen, setOneDriveOpen] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -105,7 +107,7 @@ const Index = () => {
   };
 
   return (
-    <div className="h-screen w-full relative overflow-hidden" style={{
+    <div className="h-screen w-full relative overflow-hidden isolate z-0" style={{
       backgroundImage: `url(${wallpaper})`,
       backgroundSize: "cover",
       backgroundPosition: "center",
@@ -152,6 +154,7 @@ const Index = () => {
         {adminOpen && <AdminPanel onClose={() => setAdminOpen(false)} isAdmin={isAdmin} />}
         {profileOpen && <UserProfile onClose={() => setProfileOpen(false)} />}
         {controlPanelOpen && <ControlPanel onClose={() => setControlPanelOpen(false)} />}
+        {oneDriveOpen && <OneDriveWindow onClose={() => setOneDriveOpen(false)} />}
 
         <StartMenu
           open={startOpen}
@@ -162,6 +165,7 @@ const Index = () => {
           onOpenAdmin={() => { setAdminOpen(true); setStartOpen(false); }}
           onOpenProfile={() => { setProfileOpen(true); setStartOpen(false); }}
           onOpenControlPanel={() => { setControlPanelOpen(true); setStartOpen(false); }}
+          onOpenOneDrive={() => { setOneDriveOpen(true); setStartOpen(false); }}
           isAdmin={isAdmin}
           isSignedIn={isSignedIn}
           onSignOut={onSignOut}

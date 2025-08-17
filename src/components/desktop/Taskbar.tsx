@@ -18,7 +18,7 @@ export const Taskbar = ({ onToggleStart, onOpenExplorer }: TaskbarProps) => {
   }, []);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-14 glass border-t flex items-center justify-between px-2 z-[100]">
+    <nav className="fixed bottom-0 left-0 right-0 h-14 glass border-t flex items-center justify-between px-2 z-[1000]">
       <div className="flex items-center gap-2">
         <Button variant="start" size="sm" onClick={onToggleStart} className="px-3 h-10">
           <PanelsTopLeft className="h-5 w-5" />

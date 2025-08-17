@@ -106,6 +106,14 @@ All colors MUST be HSL.
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+    overscroll-behavior: none;
+    scrollbar-width: none; /* Firefox */
+  }
+
+  html::-webkit-scrollbar, 
+  body::-webkit-scrollbar { 
+    width: 0; 
+    height: 0; 
   }
 }
 
