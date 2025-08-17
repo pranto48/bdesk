@@ -148,7 +148,6 @@ All colors MUST be HSL.
     background: var(--gradient-glass);
     border: 1px solid hsl(var(--glass-border));
     backdrop-filter: blur(20px) saturate(150%);
-    position: relative;
   }
   .glass::before {
     content: '';
