@@ -1,10 +1,20 @@
 import { PublicClientApplication, Configuration } from "@azure/msal-browser";
 
-// MSAL configuration
+// MSAL configuration with runtime values from localStorage
+const getAzureClientId = () =>
+  localStorage.getItem("azure_client_id") || "YOUR_AZURE_AD_APP_CLIENT_ID";
+const getAuthority = () => {
+  const tenant = localStorage.getItem("azure_tenant_id");
+  return tenant
+    ? `https://login.microsoftonline.com/${tenant}`
+    : "https://login.microsoftonline.com/common";
+};
+export const isMsalConfigured = () => getAzureClientId() !== "YOUR_AZURE_AD_APP_CLIENT_ID";
+
 const msalConfig: Configuration = {
   auth: {
-    clientId: "YOUR_AZURE_AD_APP_CLIENT_ID", // Replace with your actual client ID
-    authority: "https://login.microsoftonline.com/common", // Supports work/school and personal accounts
+    clientId: getAzureClientId(),
+    authority: getAuthority(),
     redirectUri: window.location.origin,
   },
   cache: {

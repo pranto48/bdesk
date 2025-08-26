@@ -11,12 +11,13 @@ interface StartMenuProps {
   onOpenProfile: () => void;
   onOpenControlPanel: () => void;
   onOpenOneDrive: () => void;
+  onOpenGoogleDrive: () => void;
   isAdmin?: boolean;
   isSignedIn?: boolean;
   onSignOut?: () => void;
 }
 
-export const StartMenu = ({ open, onOpenExplorer, onOpenAuth, onOpenMyTorrents, onOpenTorrentCreator, onOpenAdmin, onOpenProfile, onOpenControlPanel, onOpenOneDrive, isAdmin = false, isSignedIn = false, onSignOut }: StartMenuProps) => {
+export const StartMenu = ({ open, onOpenExplorer, onOpenAuth, onOpenMyTorrents, onOpenTorrentCreator, onOpenAdmin, onOpenProfile, onOpenControlPanel, onOpenOneDrive, onOpenGoogleDrive, isAdmin = false, isSignedIn = false, onSignOut }: StartMenuProps) => {
   if (!open) return null;
   return (
     <div
@@ -49,6 +50,10 @@ export const StartMenu = ({ open, onOpenExplorer, onOpenAuth, onOpenMyTorrents, 
         <Button variant="glass" className="justify-start h-12" onClick={onOpenOneDrive}>
           <Cloud />
           OneDrive
+        </Button>
+        <Button variant="glass" className="justify-start h-12" onClick={onOpenGoogleDrive}>
+          <Cloud />
+          Google Drive
         </Button>
         {!isSignedIn ? (
           <Button variant="glass" className="justify-start h-12" onClick={onOpenAuth}>

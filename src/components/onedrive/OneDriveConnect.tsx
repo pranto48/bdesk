@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Cloud, File, Folder, LogOut, Loader2 } from "lucide-react";
-import { msalInstance, loginRequest, initializeMsal } from "@/integrations/msal/msal";
+import { msalInstance, loginRequest, initializeMsal, isMsalConfigured } from "@/integrations/msal/msal";
 import { Client } from "@microsoft/microsoft-graph-client";
 import { toast } from "@/hooks/use-toast";
-
 interface DriveItem {
   id: string;
   name: string;
@@ -22,6 +23,9 @@ export const OneDriveConnect = () => {
   const [loading, setLoading] = useState(false);
   const [driveItems, setDriveItems] = useState<DriveItem[]>([]);
   const [userName, setUserName] = useState<string>("");
+
+  const [azureClientId, setAzureClientId] = useState<string>(localStorage.getItem("azure_client_id") || "");
+  const [azureTenantId, setAzureTenantId] = useState<string>(localStorage.getItem("azure_tenant_id") || "");
 
   useEffect(() => {
     initializeMsal().then(() => {
@@ -141,6 +145,44 @@ export const OneDriveConnect = () => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
   };
+
+  if (!isMsalConfigured()) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+        <Cloud className="h-16 w-16 text-muted-foreground mb-4" />
+        <h2 className="text-xl font-semibold mb-2">Set up OneDrive</h2>
+        <p className="text-muted-foreground mb-6">
+          Enter your Azure AD Application (client) ID. Optional: Tenant ID.
+        </p>
+        <div className="w-full max-w-sm space-y-3 text-left">
+          <div className="space-y-1">
+            <Label htmlFor="azure_client_id">Azure Client ID</Label>
+            <Input id="azure_client_id" value={azureClientId} onChange={(e) => setAzureClientId(e.target.value)} placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="azure_tenant_id">Tenant ID (optional)</Label>
+            <Input id="azure_tenant_id" value={azureTenantId} onChange={(e) => setAzureTenantId(e.target.value)} placeholder="common or your-tenant-id" />
+          </div>
+          <Button
+            onClick={() => {
+              if (!azureClientId.trim()) {
+                toast({ title: "Client ID required", variant: "destructive" });
+                return;
+              }
+              localStorage.setItem("azure_client_id", azureClientId.trim());
+              if (azureTenantId.trim()) localStorage.setItem("azure_tenant_id", azureTenantId.trim());
+              else localStorage.removeItem("azure_tenant_id");
+              toast({ title: "Saved OneDrive settings", description: "Reloading..." });
+              setTimeout(() => window.location.reload(), 500);
+            }}
+            className="w-full mt-2"
+          >
+            Save and reload
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (!isSignedIn) {
     return (

@@ -13,6 +13,7 @@ import { AdminPanel } from "@/components/admin/AdminPanel";
 import { UserProfile } from "@/components/profile/UserProfile";
 import { ControlPanel } from "@/components/admin/ControlPanel";
 import { OneDriveWindow } from "@/components/onedrive/OneDriveWindow";
+import { GoogleDriveWindow } from "@/components/googledrive/GoogleDriveWindow";
 import { supabase } from "@/integrations/supabase/client";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, ContextMenuSeparator, ContextMenuLabel } from "@/components/ui/context-menu";
 import { type LucideIcon } from "lucide-react";
@@ -27,6 +28,7 @@ const Index = () => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [controlPanelOpen, setControlPanelOpen] = useState(false);
   const [oneDriveOpen, setOneDriveOpen] = useState(false);
+  const [googleDriveOpen, setGoogleDriveOpen] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -155,6 +157,7 @@ const Index = () => {
         {profileOpen && <UserProfile onClose={() => setProfileOpen(false)} />}
         {controlPanelOpen && <ControlPanel onClose={() => setControlPanelOpen(false)} />}
         {oneDriveOpen && <OneDriveWindow onClose={() => setOneDriveOpen(false)} />}
+        {googleDriveOpen && <GoogleDriveWindow onClose={() => setGoogleDriveOpen(false)} />}
 
         <StartMenu
           open={startOpen}
@@ -166,6 +169,7 @@ const Index = () => {
           onOpenProfile={() => { setProfileOpen(true); setStartOpen(false); }}
           onOpenControlPanel={() => { setControlPanelOpen(true); setStartOpen(false); }}
           onOpenOneDrive={() => { setOneDriveOpen(true); setStartOpen(false); }}
+          onOpenGoogleDrive={() => { setGoogleDriveOpen(true); setStartOpen(false); }}
           isAdmin={isAdmin}
           isSignedIn={isSignedIn}
           onSignOut={onSignOut}
