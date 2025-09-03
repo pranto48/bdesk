@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  bdrive:
+    image: arifmahmudpranto/bdrive:latest
+    ports:
+      - "2266:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    container_name: bdrive-app
+
+  # Optional: Add a reverse proxy if needed
+  # nginx-proxy:
+  #   image: nginx:alpine
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./proxy.conf:/etc/nginx/nginx.conf
+  #   depends_on:
+  #     - bdrive

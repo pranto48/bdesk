@@ -1,4 +1,8 @@
-# Welcome to your Lovable project
+# BDrive - Cloud Storage Access Platform
+
+A modern web-based file manager that provides unified access to OneDrive and Google Drive storage services.
+
+This is a [Lovable](https://lovable.dev) project.
 
 ## Project info
 
@@ -50,6 +54,57 @@ npm run dev
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
 
+## Docker
+
+### Using Pre-built Image
+
+The easiest way to run BDrive is using the pre-built Docker image:
+
+```bash
+# Pull and run the latest image
+docker run -p 2266:80 arifmahmudpranto/bdrive:latest
+
+# Access the app at http://localhost:2266
+```
+
+### Building Locally
+
+```bash
+# Build the image
+docker build -t bdrive .
+
+# Run the container
+docker run -p 2266:80 bdrive
+
+# Tag for Docker Hub (optional)
+docker tag bdrive arifmahmudpranto/bdrive
+docker push arifmahmudpranto/bdrive
+```
+
+### Using Docker Compose
+
+```bash
+# Run with docker-compose (for development)
+docker-compose up -d
+
+# Run with production image
+docker-compose -f docker-compose.prod.yml up -d
+
+# Access at http://localhost:2266 (prod) or http://localhost:3000 (dev)
+```
+
+### OAuth Configuration
+
+When running in Docker, configure your OAuth redirect URIs:
+
+**OneDrive/Azure AD:**
+- Add `http://localhost:2266` to Redirect URIs in Azure App Registration
+
+**Google Drive:**
+- Add `http://localhost:2266` to Authorized JavaScript origins in Google Cloud Console
+
+For production deployments, replace `localhost:2266` with your actual domain.
+
 ## What technologies are used for this project?
 
 This project is built with:
@@ -59,6 +114,7 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Docker & Nginx
 
 ## How can I deploy this project?
 
