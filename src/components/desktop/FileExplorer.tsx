@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { HardDrive, Folder, FileText, Magnet, Download, FolderPlus, Edit, Trash2, Settings, Copy, Scissors, Clipboard, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WindowFrame } from "./WindowFrame";
@@ -60,21 +61,35 @@ export const FileExplorer = ({ onClose, isAdmin = false }: FileExplorerProps) =>
   const loadItems = async (path: string) => {
     setLoading(true);
     try {
-      // TODO: Replace with actual API call to server file system
-      // For now, using mock data
-      const mockItems: FileSystemItem[] = [
-        { id: "1", name: "Documents", type: "folder", path: `${path}/Documents`, modified: new Date() },
-        { id: "2", name: "Images", type: "folder", path: `${path}/Images`, modified: new Date() },
-        { id: "3", name: "readme.txt", type: "file", path: `${path}/readme.txt`, size: 1024, modified: new Date() },
-        { id: "4", name: "config.json", type: "file", path: `${path}/config.json`, size: 2048, modified: new Date() },
-      ];
-      setItems(mockItems);
-    } catch (error) {
+      const { data, error } = await supabase.functions.invoke('file-manager', {
+        body: {},
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (error) throw error;
+
+      const response = await fetch(`https://xrdyvbeaferrnthoguaw.supabase.co/functions/v1/file-manager?action=list&path=${encodeURIComponent(path)}`, {
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhyZHl2YmVhZmVycm50aG9ndWF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4ODY2NjgsImV4cCI6MjA3MDQ2MjY2OH0.vGsS1Sffgix-iLifOOsYA1A1IDb1mLUwdbfGez6qH0Y',
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch directory');
+
+      const result = await response.json();
+      setItems(result.items || []);
+    } catch (error: any) {
+      console.error('Load items error:', error);
       toast({
         title: "Error",
-        description: "Failed to load directory contents",
+        description: `Failed to load directory: ${error.message}`,
         variant: "destructive",
       });
+      setItems([]);
     } finally {
       setLoading(false);
     }
@@ -87,7 +102,21 @@ export const FileExplorer = ({ onClose, isAdmin = false }: FileExplorerProps) =>
   const handleCreateFolder = async () => {
     if (newFolderName.trim()) {
       try {
-        // TODO: API call to create folder
+        const response = await fetch(`https://xrdyvbeaferrnthoguaw.supabase.co/functions/v1/file-manager?action=create`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhyZHl2YmVhZmVycm50aG9ndWF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4ODY2NjgsImV4cCI6MjA3MDQ2MjY2OH0.vGsS1Sffgix-iLifOOsYA1A1IDb1mLUwdbfGez6qH0Y',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            path: currentPath,
+            name: newFolderName,
+          }),
+        });
+
+        if (!response.ok) throw new Error('Failed to create folder');
+
         toast({
           title: "Folder created",
           description: `Created folder: ${newFolderName}`,
@@ -95,10 +124,10 @@ export const FileExplorer = ({ onClose, isAdmin = false }: FileExplorerProps) =>
         setNewFolderName("");
         setShowCreateFolder(false);
         loadItems(currentPath);
-      } catch (error) {
+      } catch (error: any) {
         toast({
           title: "Error",
-          description: "Failed to create folder",
+          description: `Failed to create folder: ${error.message}`,
           variant: "destructive",
         });
       }
@@ -125,14 +154,44 @@ export const FileExplorer = ({ onClose, isAdmin = false }: FileExplorerProps) =>
     if (!clipboard) return;
 
     try {
+      const destinationPath = `${currentPath}/${clipboard.item.name}`.replace('//', '/');
+      
       if (clipboard.operation === 'copy') {
-        // TODO: API call to copy file/folder
+        const response = await fetch(`https://xrdyvbeaferrnthoguaw.supabase.co/functions/v1/file-manager?action=copy`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhyZHl2YmVhZmVycm50aG9ndWF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4ODY2NjgsImV4cCI6MjA3MDQ2MjY2OH0.vGsS1Sffgix-iLifOOsYA1A1IDb1mLUwdbfGez6qH0Y',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            sourcePath: clipboard.item.path,
+            destinationPath,
+          }),
+        });
+
+        if (!response.ok) throw new Error('Failed to copy');
+
         toast({
           title: "Pasted",
           description: `${clipboard.item.name} copied to ${currentPath}`,
         });
       } else {
-        // TODO: API call to move file/folder
+        const response = await fetch(`https://xrdyvbeaferrnthoguaw.supabase.co/functions/v1/file-manager?action=move`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhyZHl2YmVhZmVycm50aG9ndWF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4ODY2NjgsImV4cCI6MjA3MDQ2MjY2OH0.vGsS1Sffgix-iLifOOsYA1A1IDb1mLUwdbfGez6qH0Y',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            sourcePath: clipboard.item.path,
+            destinationPath,
+          }),
+        });
+
+        if (!response.ok) throw new Error('Failed to move');
+
         toast({
           title: "Moved",
           description: `${clipboard.item.name} moved to ${currentPath}`,
@@ -140,10 +199,10 @@ export const FileExplorer = ({ onClose, isAdmin = false }: FileExplorerProps) =>
         setClipboard(null);
       }
       loadItems(currentPath);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to paste item",
+        description: `Failed to paste item: ${error.message}`,
         variant: "destructive",
       });
     }
@@ -151,17 +210,30 @@ export const FileExplorer = ({ onClose, isAdmin = false }: FileExplorerProps) =>
 
   const handleDelete = async (item: FileSystemItem) => {
     try {
-      // TODO: API call to delete file/folder
+      const response = await fetch(`https://xrdyvbeaferrnthoguaw.supabase.co/functions/v1/file-manager?action=delete`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhyZHl2YmVhZmVycm50aG9ndWF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4ODY2NjgsImV4cCI6MjA3MDQ2MjY2OH0.vGsS1Sffgix-iLifOOsYA1A1IDb1mLUwdbfGez6qH0Y',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          path: item.path,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to delete');
+
       toast({
         title: "Deleted",
         description: `${item.name} deleted`,
         variant: "destructive",
       });
       loadItems(currentPath);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to delete item",
+        description: `Failed to delete item: ${error.message}`,
         variant: "destructive",
       });
     }
@@ -186,7 +258,7 @@ export const FileExplorer = ({ onClose, isAdmin = false }: FileExplorerProps) =>
     <WindowFrame title={`File Explorer - ${currentPath}`} onClose={onClose}>
       <div className="h-full flex flex-col">
         {/* Toolbar */}
-        <div className="border-b p-2 flex items-center gap-2">
+        <div className="border-b p-2 flex items-center gap-2 bg-card">
           <Button
             variant="ghost"
             size="sm"
@@ -195,6 +267,18 @@ export const FileExplorer = ({ onClose, isAdmin = false }: FileExplorerProps) =>
           >
             <RefreshCw className="h-4 w-4" />
           </Button>
+          {currentPath !== '/' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                const parentPath = currentPath.split('/').slice(0, -1).join('/') || '/';
+                setCurrentPath(parentPath);
+              }}
+            >
+              ← Up
+            </Button>
+          )}
           {clipboard && (
             <Button
               variant="ghost"
@@ -205,6 +289,15 @@ export const FileExplorer = ({ onClose, isAdmin = false }: FileExplorerProps) =>
               Paste
             </Button>
           )}
+          <div className="flex-1" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowCreateFolder(true)}
+          >
+            <FolderPlus className="h-4 w-4 mr-1" />
+            New Folder
+          </Button>
         </div>
 
         <div className="flex-1 grid grid-cols-12">
@@ -228,24 +321,51 @@ export const FileExplorer = ({ onClose, isAdmin = false }: FileExplorerProps) =>
           </aside>
 
           {/* Main content */}
-          <main className="col-span-8 md:col-span-9 p-3 overflow-auto">
-            <div className="mb-3 text-sm text-foreground/70">{currentPath}</div>
+          <main className="col-span-8 md:col-span-9 p-3 overflow-auto bg-background">
+            <div className="mb-3 text-sm text-muted-foreground flex items-center gap-1">
+              {currentPath.split('/').filter(Boolean).reduce((acc: JSX.Element[], segment: string, index: number, arr: string[]) => {
+                const path = '/' + arr.slice(0, index + 1).join('/');
+                acc.push(
+                  <button
+                    key={path}
+                    onClick={() => setCurrentPath(path)}
+                    className="hover:text-foreground hover:underline"
+                  >
+                    {segment}
+                  </button>
+                );
+                if (index < arr.length - 1) {
+                  acc.push(<span key={`sep-${index}`}>/</span>);
+                }
+                return acc;
+              }, [
+                <button
+                  key="root"
+                  onClick={() => setCurrentPath('/')}
+                  className="hover:text-foreground hover:underline"
+                >
+                  root
+                </button>
+              ])}
+            </div>
 
             {loading ? (
               <div className="text-center py-8">Loading...</div>
             ) : (
-              <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
                 {items.map((item) => {
                   const ItemContent = (
-                    <article className="flex flex-col items-center justify-center h-32 rounded-md hover:bg-foreground/5 p-2 cursor-pointer">
+                    <article className="flex flex-col items-center justify-center h-24 rounded-lg hover:bg-accent/50 p-2 cursor-pointer transition-colors border border-transparent hover:border-border">
                       {item.type === "folder" ? (
-                        <Folder className="h-8 w-8 text-foreground mb-2" />
+                        <Folder className="h-6 w-6 text-blue-500 mb-1" />
                       ) : (
-                        <FileText className="h-8 w-8 text-foreground mb-2" />
+                        <FileText className="h-6 w-6 text-muted-foreground mb-1" />
                       )}
-                      <div className="text-xs text-center line-clamp-2 mb-1">{item.name}</div>
+                      <div className="text-xs text-center line-clamp-2 mb-1 max-w-full break-words">
+                        {item.name}
+                      </div>
                       {item.size && (
-                        <div className="text-xs text-foreground/60">{formatFileSize(item.size)}</div>
+                        <div className="text-xs text-muted-foreground">{formatFileSize(item.size)}</div>
                       )}
                     </article>
                   );
